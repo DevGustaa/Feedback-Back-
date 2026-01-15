@@ -2,21 +2,27 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
+const createDatabase = require("./src/database/createDatabase");
+const createDataFeedBack = require("./src/database/createDataFeedBack");
+
 const app = express();
 
-//Verifica e cria tabelas
-const createDataFeedBack = require("./src/database/createDataFeedBack");
-createDataFeedBack();
+async function startServer() {
+  //cria o database
+  await createDatabase();
 
-app.use(cors());
-app.use(express.json());
+  //cria as tabelas
+  await createDataFeedBack();
 
-// Rotas
-const feedbackRoutes = require("./src/routes/feedbackRoutes");
-app.use("/feedback", feedbackRoutes);
+  app.use(cors());
+  app.use(express.json());
 
-const port = process.env.PORT;
+  const feedbackRoutes = require("./src/routes/feedbackRoutes");
+  app.use("/feedback", feedbackRoutes);
 
-app.listen(port, () => {
-  console.log(`Servidor rodando na porta ${port}`);
-});
+  app.listen(process.env.PORT, () => {
+    console.log(`Servidor rodando na porta ${process.env.PORT}`);
+  });
+}
+
+startServer();
